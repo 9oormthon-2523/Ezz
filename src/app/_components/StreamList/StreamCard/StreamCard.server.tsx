@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 import Image from 'next/image';
 import { StreamCardType } from '@/app/_types/streamcard/streamcard.type';
 
@@ -8,12 +9,12 @@ const StreamCard = (card: StreamCardType) => {
   const router = useRouter();
   const defaultImage = '/channelPage/blank_profile.svg';
 
-  const moveToLivePage = () => {
+  const moveToLivePage = useCallback(() => {
     router.push(`/live/${uid}`);
-  };
-  const moveToProfile = () => {
+  }, [router, uid]);
+  const moveToProfile = useCallback(() => {
     router.push(`/channel/${uid}`);
-  };
+  }, [router, uid]);
   return (
     <div className="hover:cursor-pointer bg-white rounded-lg p-2 min-w-[320px]  min-h-[300px]">
       {/* 이미지 */}
@@ -26,9 +27,10 @@ const StreamCard = (card: StreamCardType) => {
             alt="썸네일 이미지"
             layout="intrinsic"
             width={200}
-            height={100}
+            height={180}
             objectFit="cover"
             priority
+            fetchPriority="high"
           />
         </div>
 
@@ -54,9 +56,12 @@ const StreamCard = (card: StreamCardType) => {
             <Image
               src={profile_img || defaultImage}
               alt={`${nickname} profile`}
-              layout="fill"
+              layout="intrinsic"
+              width={24}
+              height={24}
               objectFit="cover"
               className="rounded-full"
+              loading="lazy"
             />
           </div>
           <span className="text-xs text-gray-700 font-medium">{nickname}</span>
