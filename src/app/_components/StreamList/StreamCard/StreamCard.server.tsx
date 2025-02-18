@@ -17,17 +17,20 @@ const StreamCard = (card: StreamCardType) => {
   return (
     <div className="hover:cursor-pointer bg-white rounded-lg p-2 min-w-[320px]  min-h-[300px]">
       {/* 이미지 */}
-      <div className="relative h-48 rounded-lg border border-gray-200 hover:cursor-pointer" onClick={moveToLivePage}>
+
+      <div className="relative h-44 rounded-lg border border-gray-200 hover:cursor-pointer" onClick={moveToLivePage}>
         {/* 이미지 배경 */}
-        <div
-          className="absolute inset-0 rounded-lg"
-          style={{
-            backgroundImage: `url(${thumbnail || '/mainPage/thumbnailImg.png'})`,
-            backgroundPosition: 'center center',
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
+        <div className="absolute inset-0 rounded-lg overflow-hidden flex justify-center items-center">
+          <Image
+            src={thumbnail || '/mainPage/thumbnailImg.webp'}
+            alt="썸네일 이미지"
+            layout="intrinsic"
+            width={200}
+            height={100}
+            objectFit="cover"
+            priority
+          />
+        </div>
 
         {/* 오버레이 레이어 추가 */}
         <div className="absolute inset-0 bg-black opacity-0 hover:opacity-25 transition-opacity rounded-lg"></div>
