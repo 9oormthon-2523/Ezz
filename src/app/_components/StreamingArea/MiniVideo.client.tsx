@@ -16,16 +16,14 @@ const useVideoRef = ({ is_active, videoTrackRef }: Props) => {
 
   // 2초 단위로 미디어 스트림 확인
   useEffect(() => {
-    if (!is_active) {
-      if(videoElRef.current) 
-        videoElRef.current.srcObject = null; // 비디오 src 초기화
+    if (!is_active && videoElRef.current) {
+      videoElRef.current.srcObject = null; // 비디오 src 초기화
       return;
     }
 
     const interval = setInterval(() => {
       if (!videoTrackRef.current || !videoElRef.current) {
-        limit.current = false;
-        return
+        return limit.current = false;
       };
 
       // 미디어 스트림이 존재하면 videoElRef에 src할당
