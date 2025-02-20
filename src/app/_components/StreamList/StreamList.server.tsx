@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { StreamCardType } from '@/app/_types/streamcard/streamcard.type';
 import StreamCardSkeleton from './skeletonUI/StreamCardSkeleton';
 
-const StreamCard = dynamic(() => import('@/app/_components/StreamList/streamCard/StreamCard.server'), {
+const StreamCard = dynamic(() => import('@/app/_components/StreamList/card/StreamCard.server'), {
   ssr: true,
   loading: () => <StreamCardSkeleton />,
 });
