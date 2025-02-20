@@ -1,24 +1,23 @@
 import React from 'react';
-import StreamCard from './StreamCard/StreamCard.server';
+import dynamic from 'next/dynamic';
+import { StreamCardType } from '@/app/_types/streamcard/streamcard.type';
+import StreamCardSkeleton from './skeletonUI/StreamCardSkeleton';
 
-interface StreamCardData {
-  uid: string;
-  title: string;
-  start_time: string;
-  is_active: boolean;
-  audience_cnt: number;
-  nickname: string;
-  thumbnail: string;
-  profile_img: string;
-  tags: string[];
+const StreamCard = dynamic(() => import('@/app/_components/StreamList/streamCard/StreamCard.server'), {
+  ssr: true,
+  loading: () => <StreamCardSkeleton />,
+});
+
+interface StreamListProps {
+  streamData: StreamCardType[];
 }
 
-const StreamList: React.FC<{ streamData: StreamCardData[] }> = ({ streamData }) => {
+const StreamList: React.FC<StreamListProps> = ({ streamData }) => {
   return (
     <div className="px-4">
       {streamData.length > 0 ? (
         <div className="grid grid-cols-[repeat(4,minmax(330px,1fr))] justify-items-center">
-          {streamData.map((data: StreamCardData) => (
+          {streamData.map((data: StreamCardType) => (
             <StreamCard key={data.uid} {...data} />
           ))}
         </div>
