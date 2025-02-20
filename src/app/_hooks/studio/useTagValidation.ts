@@ -15,14 +15,10 @@ const useTagValidation = (tags: string[]) => {
   const { data, setPushTags } = useStreamingSettings();
 
   useEffect(() => {
-    if (tags.length > 0) {
-      tags.forEach((item) => {
-        if (!data.tags.includes(item)) {
-          setPushTags(item);
-        }
-      });
+    if (tags.length) {
+      tags.forEach((tag) => setPushTags(tag));
     }
-  }, [tags, data.tags]);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
@@ -58,7 +54,6 @@ const useTagValidation = (tags: string[]) => {
   };
 
   return {
-    data,
     text,
     tagError,
     handleInputChange,
