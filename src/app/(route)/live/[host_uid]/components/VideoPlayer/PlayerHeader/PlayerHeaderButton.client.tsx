@@ -6,7 +6,7 @@ import SvgIcon, { SvgComponentNames } from "@/app/_components/SVGIcon.server";
  */
 
 export interface PlayerHeaderButtonProps {
-    fnName?:string
+    fnName?:string;
     onClick: () => void;
     iconName: SvgComponentNames;
 }
@@ -18,7 +18,7 @@ const PlayerHeaderButton = (props:PlayerHeaderButtonProps) => {
         <button aria-label={fnName} onClick={onClick} className='text-[#141517] relative overflow-hidden outline-none focus:outline-none rounded-[12px] hover:bg-[#ffffff6c]'>
             <SvgIcon name={iconName} width={36} height={36}/>
         </button>
-    )
-}
+    );
+};
 
 export default PlayerHeaderButton;

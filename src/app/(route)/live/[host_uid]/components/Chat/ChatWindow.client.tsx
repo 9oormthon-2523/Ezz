@@ -1,21 +1,19 @@
 "use client";
 import { Message } from "@/app/_types/chat/Chat";
-// import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { getColorFromNickname } from "@/app/_utils/chat/hashColor";
 import { IoShieldCheckmarkSharp } from "react-icons/io5";
-import { throttle } from "../../utils/local/throttle.client";
+import { throttle } from "@/app/_utils/live/local/throttle.client";
 import ArrowBttom from "@public/livePage/Chat/arrowBottom.svg"
-/**
- * 채팅 창
- */
 
-//프롭스는 나중에
 type MessageListProps = {
   messages: Message[];
   roomId: string;
 };
 
+/**
+ * 채팅 창 컴포넌트
+ */
 const ChatWindow = ({ messages, roomId }: MessageListProps) => {
   const chatFrameRef = useRef<HTMLDivElement>(null);
   const isScrollendRef = useRef<boolean>(true); 
@@ -31,12 +29,12 @@ const ChatWindow = ({ messages, roomId }: MessageListProps) => {
     }
   }
 
-  // 새로운 채팅이 들어왔을 때 스크롤이 끝이면 실행행
-  const scrollToBottom = () => {
+  // 새로운 채팅이 들어왔을 때 스크롤이 끝이면 실행
+  const scrollToBottom = useCallback(() => {
     if (isScrollendRef.current === true) {
       setScrollEnd();
     }
-  };
+  },[]);
 
   // 스크롤 상태 가져오기
   const getScrollState = () => {
@@ -48,6 +46,7 @@ const ChatWindow = ({ messages, roomId }: MessageListProps) => {
     }
   };
 
+  // 스크롤 값 추출
   useEffect(()=>{
     const chatFrame = chatFrameRef.current;
     const throttledScrollHandler = throttle(getScrollState, 200);
@@ -59,10 +58,10 @@ const ChatWindow = ({ messages, roomId }: MessageListProps) => {
     }
   },[]);
 
+  // 스크롤이 위치가 최하단일 때, 새로운 메시지가 추가되면 스크롤을 자동으로 최하단 이동
   useEffect(() => {
     scrollToBottom(); 
-    console.log("msg:", messages);
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
   return (
     <div
@@ -75,7 +74,7 @@ const ChatWindow = ({ messages, roomId }: MessageListProps) => {
         className="flex flex-col overflow-y-auto p-[0_12px] w-full"
       >
         {/* 채팅 */}
-        <div id="empty-box-forChat" aria-label="빈 박스" />
+        <div id="empty-box-forChat"/>
         <div className="text-[14px]">
           {messages.map((msg, idx) => (
             <ChatBox
@@ -86,8 +85,12 @@ const ChatWindow = ({ messages, roomId }: MessageListProps) => {
               roomId={roomId}
             />
           ))}
-          <button onClick={setScrollEnd} className="outline-none absolute rounded-full bottom-0 right-[12px] w-[28px] h-[28px] bg bg-[#eeeeee] flex items-center justify-center text-[18px]">
-            <ArrowBttom/>
+          <button 
+            aria-label="scroll-to-latest-message"
+            onClick={setScrollEnd} 
+            className="outline-none text-[#666] absolute rounded-full bottom-0 right-[12px] w-[28px] h-[28px] bg bg-[#eeeeee] flex items-center justify-center text-[18px] hover:brightness-90 hover:text-black"
+          >
+            <ArrowBttom />
           </button>
         </div>
       </div>
@@ -106,9 +109,7 @@ type ChatProps = {
 
 //채팅 박스
 const ChatBox = ({ nickname, message, id, roomId }: ChatProps) => {
-  // const router = useRouter();
   const handleNicknameClick = () => {
-    // router.push(`/channel/${id}`);
     window.open(`/channel/${id}`, '_blank');
   };
 

@@ -1,78 +1,56 @@
 "use client";
 
-import NavBar from "@/app/(route)/(main)/_components/NavBar/NavBar.client";
-import useFullscreenHandler from "../utils/local/useFullScreenHandler.client";
-import useScreenControl from "@/app/_store/stores/live/useScreenControl";
+import { HostInfoState, StreamRoomState } from "@/app/_types/live/liveType";
+import usePing from "@/app/_utils/live/db/usePing.client";
+import useLiveInfo from "@/app/_utils/live/db/useLiveInfo.client";
+import useLiveControl from "@/app/_store/stores/live/useLiveControl";
 import useNavToggle from "@/app/_store/main/useNavToggle.client";
-import useLiveInfo from "../utils/db/useLiveInfo.client";
-import LiveStreamWrapper from "./LiveStreamWrapper.client";
-import LiveWrapper from "./LiveTotalWrapper.clinet";
-import LiveDetails from "./LiveDetails.client";
+import LiveTotalWrapper from "../components/Wrapper/LiveTotalWrapper.clinet";
+import LiveStreamWrapper from "../components/Wrapper/LiveStreamWrapper.client";
+import NavBar from "@/app/(route)/(main)/_components/NavBar/NavBar.client";
+import LiveDetail from "./LiveDetails.client";
 import ChatLayout from "./Chat.client";
+
 import dynamic from "next/dynamic";
+import VideoLoadingCompo from "../components/Loading/VideoLoadingCompo.client";
 
-const VideoPlayer = dynamic(() => import("./VideoPlayer.client"), { ssr: false });
+const VideoPlayer = dynamic(() => import("./VideoPlayer.client"), { 
+  ssr: false,
+  loading: ()=> <VideoLoadingCompo/>
+});
 
-import { getHostInfoPayload } from "../liveType";
-import usePing from "../utils/db/usePing.client";
-
-interface StreamingPageProps extends getHostInfoPayload {
-  client_uid: string | undefined
-}
-
-/**
- * 스트리밍 페이지 메인
- */
+interface StreamingPageProps {
+  hostInfo:HostInfoState;
+  streamRoom:StreamRoomState;
+};
 
 export default function StreamingPage(props: StreamingPageProps) {
-  const { hostInfo, roomInit, client_uid } = props;
   const isOpen = useNavToggle((state) => state.isOpen);
-  const isFullOrWide = useScreenControl(state => state.isFullOrWide);
+  const isFullOrWide = useLiveControl(state => state.screen.state.isFullOrWide);
 
-  // 풀 스크린 핸들러
-  useFullscreenHandler();
+  // 초기값 세팅
+  useLiveInfo(props);
 
-  // 실시간 데이터 구독
-  const liveInfo = useLiveInfo({
-    tags: roomInit.tags,
-    title: roomInit.title,
-    host_uid: roomInit.uid,
-    category: roomInit.category,
-    is_active: roomInit.is_active,
-    audience_cnt: roomInit.audience_cnt,
-  });
-
-  // 호스트 핑(시청자 수)
-  usePing({ client_uid, host_uid:roomInit.uid, is_active:liveInfo.is_active });
-
+  // 핑(시청자 수)
+  usePing(props.streamRoom.client_uid);
+  
   return (
     <>
-        {isOpen && <NavBar />}
-            <LiveWrapper>
-                <LiveStreamWrapper>
+    {isOpen && <NavBar />}
+      <LiveTotalWrapper>
+        <LiveStreamWrapper>
 
-                    {/* 비디오 플레이어 */}
-                    <VideoPlayer 
-                        uid={roomInit.uid} 
-                        is_active={liveInfo.is_active}
-                    />
+          {/* 비디오 플레이어 */}
+          <VideoPlayer/>
+          
+          {/* 방송 정보 */}
+          {!isFullOrWide &&<LiveDetail/>}
 
-                    {/* 방송 정보 */}
-                    {!isFullOrWide &&
-                        <LiveDetails
-                          {...hostInfo}
-                          {...liveInfo}
-                          uid={client_uid}
-                          host_uid={roomInit.uid}
-                          start_time={roomInit.start_time} 
-                        />
-                    }
+        </LiveStreamWrapper>
 
-                  </LiveStreamWrapper>
-
-            {/* 채팅창 */}
-            <ChatLayout roomId={roomInit.uid} client_uid={client_uid} />
-      </LiveWrapper>
+        {/* 채팅창 */}
+        <ChatLayout client_uid={props.streamRoom.client_uid} roomId={props.streamRoom.host_uid}/>
+      </LiveTotalWrapper>
     </>
   );
-}
+};

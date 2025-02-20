@@ -29,7 +29,3 @@ th {
 .th-div {
   @apply flex items-center justify-center font-black;
 }
-
-#view-chat {
-  @apply m-[0_auto] min-w-[40%];
-}

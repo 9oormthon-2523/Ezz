@@ -29,31 +29,36 @@ const Footer = () => {
     ];
 
     return (
-        <footer aria-label="footer" className="flex flex-wrap justify-center m-[0_30px] p-[25px_0_85px] box-border border-solid border-t-[1px] border-[#6666662d]">
-            <div className="flex-none">
-                {footerList.map(({ title, url }, idx) => (
-                    <FooterItem key={idx} url={url}>{title}</FooterItem>
-                ))}
-                <FooterItem key="lastItem" url="https://github.com/9oormthon-2523/chzzk-clone" lastIdx={true}>
-                    <strong>ⓣ 2523.</strong>
-                </FooterItem>
-            </div>
+        
+        <footer aria-label="footer" className="w-full">
+                <ul id="footer-contents" className="text-center">
+                    {footerList.map(({ title, url }, idx) => (
+                        <FooterItem key={idx} url={url}>{title}</FooterItem>
+                    ))}
+                    
+                    <FooterItem key="lastItem" url="https://github.com/9oormthon-2523/chzzk-clone" lastIdx={true}>
+                        <strong>ⓣ 2523.</strong>
+                    </FooterItem>
+                    
+                </ul>
         </footer>  
-    )
-}
+    );
+};
 
 export default Footer;
 
 
 interface FooterItemProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
-    lastIdx?:boolean
-    url:string
-}
+    lastIdx?:boolean;
+    url:string;
+};
 
 const FooterItem = (props: FooterItemProps) =>{
     const { url, lastIdx, ...rest} = props;
     const afterStyle = "after:content-[''] after:absolute after:top-[7px] after:bottom-[7px] after:right-0 after:w-[1px] after:bg-[#6666667d]"
     return (
-        <Link {...rest} href={url} className={`${!lastIdx ? afterStyle : " "} text-[#666] inline-block text-[12px] leading-[15px] p-[5px_11px_5px_10px] relative align-top hover:underline decoration-gray-500`}/>
-    )
-}
+        <li className={`${!lastIdx ? afterStyle : " "} text-[#666] inline-block text-[12px] leading-[15px] p-[5px_11px_5px_10px] relative align-top hover:underline decoration-gray-500`}>
+            <Link {...rest} href={url}/>
+        </li>
+    );
+};

@@ -7,10 +7,10 @@ import React from "react"
  */
 
 interface PlayerBottomButtonProps {
-    svgName: SvgComponentNames
-    style?: string
-    info:string
-    onClick?: () => void
+    svgName: SvgComponentNames;
+    style?: string;
+    info:string;
+    onClick?: () => void;
 }
 
 const PlayerBottomButton = (props:PlayerBottomButtonProps) => {
@@ -27,8 +27,7 @@ const PlayerBottomButton = (props:PlayerBottomButtonProps) => {
             </span>
         </button>
 
-    )
-
-}
+    );
+};
 
 export default PlayerBottomButton;

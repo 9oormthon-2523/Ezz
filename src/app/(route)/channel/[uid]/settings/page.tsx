@@ -17,6 +17,7 @@ export default function Settings() {
   const [user, setUser] = useState<UserType | null>(null);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [deleteImage, setDeleteImage] = useState<boolean>(false);
   const [nickname, setNickname] = useState<string>("");
   const [channelIntro, setChannelIntro] = useState<string>("");
   const [nicknameLength, setNicknameLength] = useState<number>(0);
@@ -80,10 +81,16 @@ export default function Settings() {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setNewImage(file);
-
+      setDeleteImage(false);
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
     }
+  };
+
+  const handleDeleteImage = () => {
+    setPreviewUrl(defaultImage);
+    setDeleteImage(true);
+    setNewImage(null);
   };
 
   const updateUser = async () => {
@@ -91,10 +98,10 @@ export default function Settings() {
 
     try {
       let finalImageUrl = user.img;
-
-      if (newImage) {
+      if (deleteImage) {
+        finalImageUrl = defaultImage;
+      } else if (newImage) {
         const filePath = `${Date.now()}_${crypto.randomUUID()}`;
-
         const { error: uploadError } = await supabase.storage
           .from("avatars")
           .upload(filePath, newImage);
@@ -103,7 +110,9 @@ export default function Settings() {
           throw new Error(`이미지 업로드 오류: ${uploadError.message}`);
         }
 
-        const { data: publicUrlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        const { data: publicUrlData } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(filePath);
 
         if (!publicUrlData) {
           throw new Error("이미지 URL 가져오기 오류");
@@ -136,7 +145,7 @@ export default function Settings() {
           },
         ]);
 
-        const { error } = await supabase
+      const { error } = await supabase
         .from("streaming_rooms")
         .upsert({
           uid: user.id,
@@ -164,7 +173,7 @@ export default function Settings() {
       setNewImage(null);
       console.log("사용자 업데이트 성공", updatedUser);
       alert("프로필이 업데이트되었습니다!");
-      window.location.reload()
+      window.location.reload();
     } catch (error) {
       console.error("프로필 업데이트 오류", error);
     }
@@ -204,19 +213,25 @@ export default function Settings() {
             <div className="flex gap-2">
               <p className="w-24 mt-4 shrink-0 font-bold text-gray-700 mr-6 mb-24">프로필 이미지</p>
               <div className="flex flex-row items-center gap-2">
-              <div className="w-32 h-32 rounded-full flex-shrink-0 shadow-md mr-4 relative">
-                <Image 
-                  src={previewUrl || defaultImage} 
-                  alt={`${nickname} profile`} 
-                  layout="fill" 
-                  objectFit="cover" 
-                  className="rounded-full" 
-                />
-              </div>
+                <div className="w-32 h-32 rounded-full flex-shrink-0 shadow-md mr-4 relative">
+                  <Image 
+                    src={previewUrl || defaultImage} 
+                    alt={`${nickname} profile`} 
+                    layout="fill" 
+                    objectFit="cover" 
+                    className="rounded-full" 
+                  />
+                </div>
                 <label className="ml-2 inline-flex items-center h-9 px-4 py-2 bg-gray-50 text-sm font-semibold rounded-md cursor-pointer border border-gray-200 hover:bg-gray-200">
                   이미지 수정
                   <input type="file" onChange={handleImageChange} className="hidden" />
                 </label>
+                <button
+                  onClick={handleDeleteImage}
+                  className="ml-2 inline-flex items-center h-9 px-4 py-2 bg-gray-50 text-sm font-semibold rounded-md cursor-pointer border border-gray-200 hover:bg-gray-200"
+                >
+                  이미지 삭제
+                </button>
               </div>
             </div>
 
@@ -247,13 +262,11 @@ export default function Settings() {
               <div className="w-16 text-sm text-gray-500">{channelIntroLength} / 100</div>
             </div>
           </div>
-
         ) : (
           <div className="text-center">사용자 정보를 불러오는 중...</div>
         )}
       </div>
-     <div className="h-20" />
-
+      <div className="h-20" />
     </>
   );
 }

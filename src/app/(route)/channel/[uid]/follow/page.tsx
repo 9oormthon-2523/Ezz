@@ -5,6 +5,7 @@ import { createClient } from '@/app/_utils/supabase/client';
 import { useParams, useRouter } from 'next/navigation';
 import FollowChannel from '../components/FollowChannel';
 import Image from 'next/image';
+import SearchInput from '../components/SearchProfileInput';
 
 interface FollowingUser {
   id: string;
@@ -17,6 +18,7 @@ const Follow = () => {
   const [followingUsers, setFollowingUsers] = useState<FollowingUser[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const { uid } = useParams();
   const router = useRouter();
 
@@ -88,9 +90,24 @@ const Follow = () => {
     return <div className="text-center text-red-500 py-8">오류: {error}</div>;
   }
 
+  const filteredUsers = followingUsers.filter((user) =>
+    user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="max-w-3xl py-8 px-6">
-      {followingUsers.length === 0 ? (
+    <div className="max-w-full pb-8 px-6">
+      <div className="flex flex-row justify-between mb-8">
+        <div className="flex pt-2 text-lg font-bold">
+          이 채널이 팔로우하는 다른 채널
+        </div>
+        <SearchInput
+          value={searchQuery}
+          placeholder="채널 이름을 입력하세요."
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {filteredUsers.length === 0 ? (
         <div className="flex flex-col items-center justify-center mt-10 pb-40">
           <Image
             src="/channelPage/no_content.svg"
@@ -98,11 +115,13 @@ const Follow = () => {
             width={140}
             height={140}
           />
-          <p className="text-center text-gray-500 mt-4">팔로우한 사용자가 없습니다.</p>
+          <p className="text-center text-gray-500 mt-4">
+            팔로우한 사용자가 없습니다.
+          </p>
         </div>
       ) : (
-        <ul className="space-y-4">
-          {followingUsers.map((user) => (
+        <ul className="grid grid-cols-2 gap-4">
+          {filteredUsers.map((user) => (
             <div
               key={user.id}
               className="cursor-pointer"

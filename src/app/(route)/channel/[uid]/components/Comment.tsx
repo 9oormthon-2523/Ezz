@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import CommentInput from './CommentInput';
 import { createClient } from '@/app/_utils/supabase/client';
+import ConfirmModal from './ConfirmModal'; 
 
 interface Props {
   nickname: string;
@@ -34,6 +35,7 @@ const Comment = (props: Props) => {
 
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const defaultImage = '/channelPage/blank_profile.svg';
 
   useEffect(() => {
@@ -60,9 +62,14 @@ const Comment = (props: Props) => {
     setIsDropdownOpen(false);
   };
 
-  const handleDelete = async () => {
-    await onDelete();
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true); 
     setIsDropdownOpen(false);
+  };
+
+  const confirmDelete = async () => {
+    await onDelete();
+    setShowDeleteModal(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -138,7 +145,7 @@ const Comment = (props: Props) => {
                   수정
                 </button>
                 <button
-                  onClick={handleDelete}
+                  onClick={handleDeleteClick}
                   className="flex w-full text-left font-bold p-2 text-sm text-red-500 hover:bg-gray-100 rounded-lg"
                 >
                   <Image
@@ -153,7 +160,7 @@ const Comment = (props: Props) => {
               </>
             ) : (
               <button
-                className="flex w-full text-left m-auto align-middle font-bold p-2 text-sm  hover:bg-gray-100 rounded-lg"
+                className="flex w-full text-left m-auto align-middle font-bold p-2 text-sm hover:bg-gray-100 rounded-lg"
                 onClick={() => alert('신고 기능은 준비 중입니다.')}
               >
                 <Image
@@ -169,6 +176,14 @@ const Comment = (props: Props) => {
           </div>
         )}
       </div>
+
+      {showDeleteModal && (
+        <ConfirmModal
+          message="정말로 이 댓글을 삭제할까요?"
+          onConfirm={confirmDelete}
+          onCancel={() => setShowDeleteModal(false)}
+        />
+      )}
     </div>
   );
 };

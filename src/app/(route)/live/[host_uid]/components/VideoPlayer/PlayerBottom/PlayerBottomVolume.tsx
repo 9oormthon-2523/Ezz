@@ -1,20 +1,22 @@
 "use client"
-import useVideoControl from "@/app/_store/stores/live/useVideoControl";
+import useLiveControl from "@/app/_store/stores/live/useLiveControl";
 
 //볼륨 조절 버튼
-const PlayerBottomBolumeControl = () => {
-    const audioMute = useVideoControl((state) => state.audioMute);
-    const volumeControl = useVideoControl((state) => state.volumeControl);
-    const isMuted = useVideoControl((state) => state.audioTrack.isMuted);
-    const volumeLevel = useVideoControl((state) => state.audioTrack.volumeLevel);
+const PlayerBottomVolumeControl = () => {
+    const audioMute = useLiveControl(state => state.audioTrack.actions.audioMute);
+    const volumeControl = useLiveControl(state => state.audioTrack.actions.volumeControl);
+    const isMuted = useLiveControl(state => state.audioTrack.state.isMuted);
+    const volumeLevel = useLiveControl(state => state.audioTrack.state.volumeLevel);
+    const videoState =  useLiveControl(state => state.videoTrack.state.isEnabled);
     
     const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (isMuted) audioMute(false);
-        volumeControl(Number(e.target.value)); 
+        if (videoState && isMuted) audioMute(false);
+        volumeControl(Number(e.target.value));  
     };
 
     return (
         <div className="flex i tems-center justify-center w-[84px]">
+            <label htmlFor="volume-range" className="sr-only">볼륨 조절</label>
             <input
                 type="range" 
                 aria-label="볼륨 조절"
@@ -29,7 +31,7 @@ const PlayerBottomBolumeControl = () => {
                 style={{ background: `linear-gradient(to right, #527cdc ${Number(isMuted ? 0 : volumeLevel)}%, #e5e5e5 ${Number(isMuted ? 0 : volumeLevel)}%)`}}
             />
         </div>
-    )
-}
+    );
+};
 
-export default PlayerBottomBolumeControl;
+export default PlayerBottomVolumeControl;

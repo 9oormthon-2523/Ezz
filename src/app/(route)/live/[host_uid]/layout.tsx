@@ -1,5 +1,5 @@
 import Header from "@/app/_components/Header/Header.server";
-import "./style.css"
+// import "./style.css"
 
 export default function RootLayout({
     children,

@@ -1,11 +1,8 @@
-import { RefObject, useEffect } from 'react';
+import { RefObject } from 'react';
 import type * as AgoraRTCType from 'agora-rtc-sdk-ng';
 
 // 창 닫기, 라우팅 이벤트가 일어날 때 db 테이블에 스트리밍 상태를 false로 전환
-const useStreamCleanup = (
-  uid: string,
-  clientRef: RefObject<AgoraRTCType.IAgoraRTCClient | null>
-) => {
+const useStreamCleanup = (uid: string, clientRef: RefObject<AgoraRTCType.IAgoraRTCClient | null>) => {
   // 호스트의 is_active = false;
   const handleStreamClose = () => {
     const payload = JSON.stringify({ uid });
@@ -21,23 +18,7 @@ const useStreamCleanup = (
     }
   };
 
-  useEffect(() => {
-    const cleanup = (e?: BeforeUnloadEvent) => {
-      if (e) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-      handleStreamClose();
-      clientReset();
-    };
-
-    window.addEventListener('beforeunload', cleanup);
-
-    return () => {
-      cleanup(); // 언마운트(라우팅 이동)시 클린업
-      window.removeEventListener('beforeunload', cleanup); // 창 닫기시 클린업
-    };
-  }, [clientRef]);
+  return { handleStreamClose, clientReset };
 };
 
 export default useStreamCleanup;

@@ -22,7 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${blackHansSans.variable} antialiased`}>
-        <TanstackQueryProvider>{children}</TanstackQueryProvider>
+        <TanstackQueryProvider>
+          <div id="portal" />
+          {children}
+        </TanstackQueryProvider>
       </body>
     </html>
   );

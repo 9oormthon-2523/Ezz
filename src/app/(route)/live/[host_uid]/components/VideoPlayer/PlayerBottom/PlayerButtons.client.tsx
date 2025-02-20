@@ -1,19 +1,21 @@
 "use client"
-
-import useScreenControl from "@/app/_store/stores/live/useScreenControl";
-import useVideoControl from "@/app/_store/stores/live/useVideoControl";
 import PlayerBottomButton from "./PlayerBottomButton.client";
-import PlayerBottomBolumeControl from "./PlayerBottomVolume";
+import useLiveControl from "@/app/_store/stores/live/useLiveControl";
 
 // 와이드
 export const WideBtn = () => {
-    const toggleWideScreen = useScreenControl(state => state.toggleWideScreen);
-    const isFullscreen = useScreenControl(state => state.isFullscreen);
+    const toggleWideScreen = useLiveControl(state => state.screen.actions.toggleWideScreen);
+    const isFullscreen = useLiveControl(state => state.screen.state.isFullscreen);
 
     return (
         <>
             {!isFullscreen &&
-                <PlayerBottomButton info="와이드 모드" onClick={toggleWideScreen} svgName="VideoWidescreen" style=""/>
+                <PlayerBottomButton 
+                    info="와이드 모드" 
+                    onClick={toggleWideScreen} 
+                    svgName="VideoWidescreen" 
+                    aria-label="toggle-wide-screen-mode" 
+                />
             }
         </>
     )
@@ -21,28 +23,40 @@ export const WideBtn = () => {
 
 // 풀 스크린
 export const FullBtn = () => {
-    const toggleFullscreen = useScreenControl(state => state.toggleFullscreen);
+    const toggleFullscreen = useLiveControl(state => state.screen.actions.toggleFullscreen);
 
     return (
-        <PlayerBottomButton info="전체 화면" onClick={toggleFullscreen} svgName="VideoFullscreen" style="pl-[2.2px] pt-[2.2px]"/>
+        <PlayerBottomButton 
+            info="전체 화면" 
+            onClick={toggleFullscreen} 
+            svgName="VideoFullscreen" 
+            style="pl-[2.2px] pt-[2.2px]"
+            aria-label="toggle-full-screen-mode" 
+        />
     )
 }
 
 // 정지,재생
 export const PlayPauseBtn = ()=> {
-    const isEnabled = useVideoControl(state => state.videoTrack.isEnabled);
-    const videoToggle = useVideoControl(state => state.videoToggle);
+    const isEnabled = useLiveControl(state => state.videoTrack.state.isEnabled);
+    const videoToggle = useLiveControl(state => state.videoTrack.actions.videoToggle);
 
     return (
-        <PlayerBottomButton info={isEnabled ? "정지" : "재생"} svgName={`${isEnabled ? "VideoPause" : "VideoPlay"}`} style="" onClick={videoToggle}/>
+        <PlayerBottomButton 
+            info={isEnabled ? "정지" : "재생"} 
+            svgName={`${isEnabled ? "VideoPause" : "VideoPlay"}`}
+            onClick={videoToggle}
+            aria-label="toggle-video-play-pause" 
+        />
     )
 }
 
-// 볼륨륨
+// 볼륨
 export const VolumeBtn = () => {
-    const volumeLevel = useVideoControl(state => state.audioTrack.volumeLevel);
-    const isMuted = useVideoControl(state => state.audioTrack.isMuted);
-    const audioMute = useVideoControl(state => state.audioMute);
+    const volumeLevel = useLiveControl(state => state.audioTrack.state.volumeLevel);
+    const isMuted = useLiveControl(state => state.audioTrack.state.isMuted);
+    const videoState = useLiveControl(state => state.videoTrack.state.isEnabled);
+    const audioMute = useLiveControl(state => state.audioTrack.actions.audioMute);
 
     //svg 추출
     const getVolumeIcon = () => {
@@ -55,13 +69,13 @@ export const VolumeBtn = () => {
         return "VideoVolume0";
       };
 
-    const volumeMute = () => audioMute(!isMuted);
+    const volumeMute = () => {
+        if(videoState)
+            audioMute(!isMuted);
+    }
     
     return (
-        <>
-            <PlayerBottomButton info="볼륨 조절" svgName={getVolumeIcon()} style="mb-4 scale-[90%]" onClick={volumeMute}/>
-            <PlayerBottomBolumeControl/>
-        </>
+        <PlayerBottomButton info="볼륨 조절" svgName={getVolumeIcon()} style="mb-4 scale-[90%]" onClick={volumeMute}/>
     )
 }
 

@@ -6,6 +6,7 @@ import { createClient } from '@/app/_utils/supabase/client';
 import Comment from '../../components/Comment';
 import CommentInput from '../../components/CommentInput';
 import Image from 'next/image';
+import ConfirmModal from '../../components/ConfirmModal'; 
 
 interface PostDetail {
   id: number;
@@ -36,10 +37,11 @@ export default function Detail() {
   const [comments, setComments] = useState<CommentType[]>([]);
   const [newComment, setNewComment] = useState<string>('');
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const formattedDate = post ? new Date(post.created_at).toLocaleString() : '';
   const defaultImage = '/channelPage/blank_profile.svg';
 
-// 현재 로그인한 사용자 정보 가져오기
+  // 현재 로그인한 사용자 정보 가져오기
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       const supabase = createClient();
@@ -55,7 +57,7 @@ export default function Detail() {
     fetchLoggedInUser();
   }, []);
 
-// 게시글 불러오기
+  // 게시글 불러오기
   useEffect(() => {
     if (!postid) {
       console.log('postid가 없음');
@@ -73,7 +75,8 @@ export default function Detail() {
 
         if (error) {
           console.error('게시글 불러오기 오류:', error);
-        } if (data) {
+        } 
+        if (data) {
           // 작성자 프로필 이미지 가져오기
           const { data: userData, error: userError } = await supabase
             .from('users')
@@ -98,7 +101,7 @@ export default function Detail() {
     fetchPostById();
   }, [postid]);
 
-// 댓글 목록 불러오기
+  // 댓글 목록 불러오기
   const fetchComments = async () => {
     if (!postid) return;
     try {
@@ -143,7 +146,7 @@ export default function Detail() {
     fetchComments();
   }, [postid]);
 
-// 게시글 삭제
+  // 게시글 삭제
   const handleDelete = async () => {
     if (!postid) return;
     try {
@@ -162,6 +165,12 @@ export default function Detail() {
     } catch (err) {
       console.error('게시글 삭제 에러:', err);
     }
+  };
+
+  // 모달창 확인 삭제
+  const confirmDelete = async () => {
+    await handleDelete();
+    setShowDeleteModal(false);
   };
 
   // 댓글 추가
@@ -198,7 +207,6 @@ export default function Detail() {
       console.error('댓글 추가 에러:', err);
     }
   };
-
 
   // 댓글 수정
   const handleCommentEditStart = (id: number) => {
@@ -293,7 +301,7 @@ export default function Detail() {
               수정
             </button>
             <button
-              onClick={handleDelete}
+              onClick={() => setShowDeleteModal(true)}
               className="mt-4 px-4 py-2 bg-gray-100 font-bold text-red-500 rounded-xl hover:bg-gray-200"
             >
               삭제
@@ -363,6 +371,14 @@ export default function Detail() {
         ))}
       </div>
       <div className="h-32" />
+
+      {showDeleteModal && (
+        <ConfirmModal
+          message="정말로 이 글을 삭제할까요?"
+          onConfirm={confirmDelete}
+          onCancel={() => setShowDeleteModal(false)}
+        />
+      )}
     </div>
   );
 }

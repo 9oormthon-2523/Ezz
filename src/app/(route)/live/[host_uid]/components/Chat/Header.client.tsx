@@ -1,16 +1,16 @@
 import React from 'react';
-import SvgIcon from '../../../../../_components/SVGIcon.server';
 import { usePathname } from 'next/navigation';
-
-/**
- * 채팅 헤더
- */
+import SvgIcon from '../../../../../_components/SVGIcon.server';
 
 interface ChatHeaderProps {
   ChatFold: () => void;
   uid: string;
-}
+};
 
+
+/**
+* 채팅 헤더 컴포넌트
+*/
 const ChatHeader = (props: ChatHeaderProps) => {
   const { ChatFold, uid } = props;
   const pathname = usePathname();
@@ -30,29 +30,14 @@ const ChatHeader = (props: ChatHeaderProps) => {
             <button
               onClick={ChatFold}
               type="button"
-              aria-label="채팅 접기"
+              aria-label="chatting-layout-fold"
               className="text-[#666] overflow-hidden p-[8px] w-[inherit] h-[inherit]"
             >
               <SvgIcon
                 name="ChatFold"
                 width={28}
                 height={28}
-                className="rounded-lg hover:bg-[#58585820] hover:text-black"
-              />
-            </button>
-          </div>
-
-          <div className="right-0 absolute top-0 z-[100] box-border w-[44px] h-[44px]">
-            <button
-              type="button"
-              aria-label="채팅 접기"
-              className="text-[#666] overflow-hidden p-[8px] w-[inherit] h-[inherit]"
-            >
-              <SvgIcon
-                name="ChatOption"
-                width={20}
-                height={28}
-                className="rounded-lg hover:bg-[#58585820] hover:text-black"
+                className="rounded-lg hover:text-black hover:brightness-90 bg-white"
               />
             </button>
           </div>

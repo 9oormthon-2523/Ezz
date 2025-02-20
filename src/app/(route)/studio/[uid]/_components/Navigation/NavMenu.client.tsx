@@ -56,13 +56,11 @@ const NavMenu = (props: Props) => {
               setIsOpen((prev) => !prev);
             }
           }}
+          isFold={isFold}
         />
 
         {!isFold && !menuRoute && (
-          <button
-            className="absolute right-[25px]"
-            onClick={() => setIsOpen((prev) => !prev)}
-          >
+          <button className="absolute right-[25px]" onClick={() => setIsOpen((prev) => !prev)}>
             {isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </button>
         )}
