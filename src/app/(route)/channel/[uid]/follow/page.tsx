@@ -3,13 +3,11 @@ import FollowClient from '././components/Follow.Client';
 import type { FollowingUser } from '@/app/_hooks/channel/follow/useFollowingUsers';
 
 interface FollowPageProps {
-  params: {
-    uid: string;
-  };
+  params: Promise<{ uid: string }>;
 }
 
 export default async function FollowPage({ params }: FollowPageProps) {
-  const uid = params.uid;
+  const uid = (await params).uid;
   const supabase = createClient();
 
   const { data: followData, error: followError } = await supabase
