@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import useNavToggle from '@/app/_store/main/useNavToggle.client';
+import useNavToggle from '@/app/_store/stores/main/useNavToggle.client';
 import { IoHome } from 'react-icons/io5';
 import { TbChartBarPopular } from 'react-icons/tb';
 import { BiSolidCategory } from 'react-icons/bi';

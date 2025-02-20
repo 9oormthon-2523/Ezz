@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, useParams, useSelectedLayoutSegment } from 'next/navigation';
-import Header from "@/app/_components/Header/Header.server";
-import NavBar from "@/app/(route)/(main)/_components/NavBar/NavBar.client";
-import useNavToggle from "@/app/_store/main/useNavToggle.client";
-import { createClient } from "../../../_utils/supabase/client";
-import ChannelProfile from "@/app/(route)/channel/[uid]/components/ChannelProfile";
+import Header from '@/app/_components/Header/Header.server';
+import NavBar from '@/app/(route)/(main)/_components/NavBar/NavBar.client';
+import useNavToggle from '@/app/_store/stores/main/useNavToggle.client';
+import { createClient } from '../../../_utils/supabase/client';
+import ChannelProfile from '@/app/(route)/channel/[uid]/components/ChannelProfile';
 import Footer from '@/app/_components/Footer/footer';
 import { useFollowAction } from '@/app/_store/queries/follow/mutation';
 
@@ -16,13 +16,13 @@ interface RootLayoutProps {
 
 const RootLayout = ({ children }: RootLayoutProps) => {
   const { isOpen } = useNavToggle();
-  const [isClient, setIsClient] = useState(false); 
+  const [isClient, setIsClient] = useState(false);
   const [userInfo, setUserInfo] = useState<{ nickname: string; channel_intro: string; img_url: string } | null>(null);
   const [followerCount, setFollowerCount] = useState<number>(0);
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
 
-  const { uid } = useParams(); 
+  const { uid } = useParams();
   const router = useRouter();
   const activeSegment = useSelectedLayoutSegment();
   const isCommunityActive = !activeSegment || ['post', 'comment', 'detail', 'edit'].includes(activeSegment || '');
@@ -31,20 +31,20 @@ const RootLayout = ({ children }: RootLayoutProps) => {
   const { followMutate, unfollowMutate } = useFollowAction();
 
   const fetchUserInfo = async () => {
-    if (!uid) return; 
+    if (!uid) return;
     const { data, error } = await supabase
-      .from("users")
-      .select("nickname, channel_intro, profile_img")
-      .eq("id", uid)
+      .from('users')
+      .select('nickname, channel_intro, profile_img')
+      .eq('id', uid)
       .single();
 
     if (error) {
-      console.error("사용자 정보 불러오기 오류", error);
+      console.error('사용자 정보 불러오기 오류', error);
     } else {
       setUserInfo({
         nickname: data.nickname,
         channel_intro: data.channel_intro,
-        img_url: data.profile_img || "",
+        img_url: data.profile_img || '',
       });
     }
   };
@@ -99,7 +99,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
 
   useEffect(() => {
     if (isClient && uid) {
-      fetchUserInfo(); 
+      fetchUserInfo();
     }
   }, [isClient, uid]);
 
@@ -137,14 +137,14 @@ const RootLayout = ({ children }: RootLayoutProps) => {
         onError: (error) => {
           console.error('팔로우 오류:', error);
         },
-      }
+      },
     );
   };
 
   const handleUnfollow = () => {
     if (!uid) return;
     unfollowMutate(
-      { uid: Array.isArray(uid) ? uid[0] : uid, nickname: userInfo?.nickname || '' }, 
+      { uid: Array.isArray(uid) ? uid[0] : uid, nickname: userInfo?.nickname || '' },
       {
         onSuccess: () => {
           setIsFollowing(false);
@@ -153,7 +153,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
         onError: (error) => {
           console.error('언팔로우 오류:', error);
         },
-      }
+      },
     );
   };
 
