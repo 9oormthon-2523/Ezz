@@ -194,7 +194,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
             }`}
             onClick={() => handleTabClick(`/channel/${uid}/follow`)}
           >
-            팔로우 목록
+            팔로잉 목록
           </p>
         </div>
 
