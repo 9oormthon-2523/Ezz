@@ -3,15 +3,20 @@ import useClientAudience from "./client/useClinetAudience..client";
 import useMediaPublish from "./client/useMediaPublish.client";
 import useMediaControl from "./media/useMediaControl.client";
 import { useEffect, useRef, useState } from "react";
-import useLiveControl from "@/app/_store/stores/live/useLiveControl";
-import { useParams } from "next/navigation";
 
-const useLive = () => {
+interface Payload {
+    host_uid:string;
+    streaming_is_active:boolean;
+};
+
+const useLive = (payload: Payload) => {
+    const { 
+        host_uid,
+        streaming_is_active,
+    } = payload;
+
     const [ratio, setRatio] = useState<[number, number]>([1.83, 0.55]); 
     const updateRatio = (a:number, b:number) => setRatio([a,b]);
-
-    const { host_uid } = useParams<{ host_uid: string }>();
-    const streaming_is_active = useLiveControl(state => state.streamRoom.state.is_active);
 
     // host_uid Agora에서 받는 users의 uid는 스트림을 임의의 number로 바꿔버림 
     // 때문에 기존 uid로 식별 불가능해서 미디어를 받을 때 uid를 따로 저장

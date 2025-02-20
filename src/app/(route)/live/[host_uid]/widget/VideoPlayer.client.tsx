@@ -8,6 +8,7 @@ import PlayerOverlay from '../components/VideoPlayer/ETC/PlayerOverlay.client'
 import OpacityAnimation from '@/app/_utils/live/local/useOpacityAnimation.client'
 import useLiveControl from '@/app/_store/stores/live/useLiveControl'
 import useLive from '@/app/_hooks/live/useLive'
+import { useParams } from 'next/navigation'
 
 // 스타일
 import { 
@@ -17,12 +18,15 @@ import {
   containerVideoPlayer_style 
 } from '../style/VideoPlayerStyle'
 
+
 /**
  * 라이브 비디오 플레이어 컴포넌트
  */
 const VideoPlayer = () => {
+  const { host_uid } = useParams<{ host_uid: string }>();
   const isChatOpen = useLiveControl(state => state.screen.state.isChatOpen);
   const isFullOrWide = useLiveControl(state => state.screen.state.isFullOrWide);
+  const streaming_is_active = useLiveControl(state => state.streamRoom.state.is_active);
   
   // 라이브 스트리밍 훅
   const {
@@ -30,7 +34,7 @@ const VideoPlayer = () => {
     audioElRef,
     canvasElRef,
     ratio:[h_rate, w_rate],
-  } = useLive();
+  } = useLive({ streaming_is_active, host_uid });
 
   //마우스 호버 훅
   const { isHover, HoverHandler } = useHoverState({});
