@@ -1,150 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { createClient } from '@/app/_utils/supabase/client';
-import Comment from '../../components/Comment';
-import CommentInput from '../../components/CommentInput';
 import Image from 'next/image';
-import ConfirmModal from '../../components/ConfirmModal'; 
+import { createClient } from '@/app/_utils/supabase/client';
+import Comment from './components/Comment.client';
+import CommentInput from './components/CommentInput.client';
+import ConfirmModal from './components/ConfirmModal.client';
 
-interface PostDetail {
-  id: number;
-  nickname: string;
-  content: string;
-  created_at: string;
-  img_url: string | null;
-  profile_img: string | null;
-  user_id: string;
-}
-
-interface CommentType {
-  id: number;
-  nickname: string;
-  content: string;
-  created_at: string;
-  profile_img: string | null;
-  user_id: string;
-
-  isEditing?: boolean;  
-  editContent?: string; 
-}
+import { useLoggedInUser } from '@/app/_hooks/channel/useLoggedInUser';
+import { usePost } from '@/app/_hooks/channel/detail/usePost';
+import { useComments } from '@/app/_hooks/channel/detail/useComments';
 
 export default function Detail() {
   const router = useRouter();
   const { postid, uid } = useParams();
-  const [post, setPost] = useState<PostDetail | null>(null);
-  const [comments, setComments] = useState<CommentType[]>([]);
+
+  const post = usePost(Array.isArray(postid) ? postid[0] : postid);
+  const { comments, setComments, fetchComments } = useComments(Array.isArray(postid) ? postid[0] : postid);
+  const loggedInUserId = useLoggedInUser();
+
   const [newComment, setNewComment] = useState<string>('');
-  const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const formattedDate = post ? new Date(post.created_at).toLocaleString() : '';
   const defaultImage = '/channelPage/blank_profile.svg';
-
-  // 현재 로그인한 사용자 정보 가져오기
-  useEffect(() => {
-    const fetchLoggedInUser = async () => {
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error) {
-        console.error('로그인 사용자 정보 불러오기 오류:', error);
-      } else {
-        setLoggedInUserId(data?.user?.id || null);
-      }
-    };
-
-    fetchLoggedInUser();
-  }, []);
-
-  // 게시글 불러오기
-  useEffect(() => {
-    if (!postid) {
-      console.log('postid가 없음');
-      return;
-    }
-
-    const fetchPostById = async () => {
-      try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from('posts')
-          .select('id, nickname, content, created_at, img_url, user_id')
-          .eq('id', postid)
-          .single();
-
-        if (error) {
-          console.error('게시글 불러오기 오류:', error);
-        } 
-        if (data) {
-          // 작성자 프로필 이미지 가져오기
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('profile_img')
-            .eq('id', data.user_id)
-            .single();
-
-          if (userError) {
-            console.error('작성자 프로필 이미지 가져오기 오류:', userError);
-          }
-
-          setPost({
-            ...data,
-            profile_img: userData?.profile_img || null,
-          });
-        }
-      } catch (err) {
-        console.error('불러오기 에러:', err);
-      }
-    };
-
-    fetchPostById();
-  }, [postid]);
-
-  // 댓글 목록 불러오기
-  const fetchComments = async () => {
-    if (!postid) return;
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from('comments')
-        .select('id, content, created_at, user_id')
-        .eq('post_id', postid);
-
-      if (error) {
-        console.error('댓글 불러오기 오류:', error);
-      } else {
-        const commentUserInfo = await Promise.all(
-          data.map(async (comment) => {
-            const { data: userData, error: userError } = await supabase
-              .from('users')
-              .select('nickname, profile_img')
-              .eq('id', comment.user_id)
-              .single();
-
-            if (userError) {
-              console.error('사용자 정보 불러오기 오류', userError);
-            }
-
-            return {
-              ...comment,
-              nickname: userData?.nickname || '익명',
-              profile_img: userData?.profile_img || null,
-              isEditing: false,
-              editContent: comment.content, 
-            };
-          })
-        );
-        setComments(commentUserInfo);
-      }
-    } catch (err) {
-      console.error('댓글 불러오기 에러:', err);
-    }
-  };
-
-  useEffect(() => {
-    fetchComments();
-  }, [postid]);
 
   // 게시글 삭제
   const handleDelete = async () => {
@@ -180,7 +59,6 @@ export default function Detail() {
 
   const handleCommentSubmit = async () => {
     if (!newComment) return;
-
     try {
       const supabase = createClient();
       const { data: userData } = await supabase.auth.getUser();
@@ -315,8 +193,8 @@ export default function Detail() {
           <Image
             src={post.profile_img || defaultImage}
             alt="프로필 이미지"
-            layout="fill"
-            objectFit="cover"
+            fill
+            style={{ objectFit: 'cover' }}
             className="rounded-full"
           />
         </div>
@@ -351,7 +229,6 @@ export default function Detail() {
             onClick={handleCommentSubmit}
           />
         </div>
-
         {comments.map((comment) => (
           <Comment
             key={comment.id}
@@ -361,8 +238,8 @@ export default function Detail() {
             commentUserId={comment.user_id}
             onEdit={() => handleCommentEditStart(comment.id)}
             onDelete={() => handleCommentDelete(comment.id)}
-            isEditing={comment.isEditing} 
-            editContent={comment.editContent} 
+            isEditing={comment.isEditing}
+            editContent={comment.editContent}
             onEditChange={(value: string) =>
               handleCommentEditChange(comment.id, value)
             }
@@ -371,7 +248,6 @@ export default function Detail() {
         ))}
       </div>
       <div className="h-32" />
-
       {showDeleteModal && (
         <ConfirmModal
           message="정말로 이 글을 삭제할까요?"
