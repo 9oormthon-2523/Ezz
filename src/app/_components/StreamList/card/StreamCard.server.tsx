@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { StreamCardType } from '@/app/_types/streamcard/streamcard.type';
 
 const StreamCard = (card: StreamCardType) => {
-  const { title, nickname, audience_cnt, uid, thumbnail, is_active, profile_img, tags } = card;
+  const { title, nickname, audience_cnt, uid, thumbnail, is_active, tags } = card;
   const router = useRouter();
   const defaultImage = '/channelPage/blank_profile.svg';
   const defaultThumbnail = '/mainPage/thumbnail.webp';
@@ -61,7 +61,7 @@ const StreamCard = (card: StreamCardType) => {
         <span className="inline-flex items-center gap-1 mt-1" onClick={moveToProfile}>
           <div className="relative w-6 h-6 rounded-full overflow-hidden border border-gray-300 bg-gray-50">
             <Image
-              src={profile_img || defaultImage}
+              src={defaultImage}
               alt={`${nickname || '알 수 없음'} 프로필`}
               width={24}
               height={24}
