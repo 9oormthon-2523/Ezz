@@ -1,12 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import dynamic from 'next/dynamic';
 import StreamingStatus from './StreamingStatus.client';
 import { useUserStreaming } from '@/app/_store/queries/streamingSettings/query';
 import { useUID } from '@/app/_store/context/useUid';
 import ExplainBtn from './ExplainBtn.client';
 import ChatLayout from '@/app/(route)/live/[host_uid]/widget/Chat.client';
+
+import type * as AgoraRTCType from 'agora-rtc-sdk-ng';
 
 const StreamingButtonList = dynamic(() => import('./StreamingButtonList.client'), {
   ssr: false,
@@ -23,6 +25,7 @@ const MiniVideo = dynamic(() => import('./MiniVideo.client'), {
 const StreamingView = () => {
   const uid = useUID();
   const { data } = useUserStreaming(uid);
+  const videoTrackRef = useRef<null | AgoraRTCType.ILocalVideoTrack>(null);
 
   return (
     <BeforeUnloadWrapper>
@@ -35,14 +38,14 @@ const StreamingView = () => {
 
         {/* 스트리밍 버튼 툴 */}
         <div className="mt-[30px]">
-          <StreamingButtonList />
+          <StreamingButtonList videoTrackRef={videoTrackRef}/>
         </div>
 
         {/* 현재 스트리밍 상태 */}
         <StreamingStatus />
 
         {/* 공유중인 비디오 */}
-        <MiniVideo is_active={data?.is_active || false} />
+        <MiniVideo videoTrackRef={videoTrackRef} is_active={data?.is_active || false} />
       </div>
 
       {/* 채팅 레아아웃 */}

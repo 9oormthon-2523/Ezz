@@ -6,10 +6,15 @@ import { useUserStreaming } from '@/app/_store/queries/streamingSettings/query';
 import React, { useState } from 'react';
 import ActionButton from './ActionButton.client';
 import { useStreamingWorker } from '@/app/_hooks/studio/worker/useStreamingWorker';
+import type * as AgoraRTCType from 'agora-rtc-sdk-ng';
 
-const StreamingButtonList = () => {
+interface Props {
+  videoTrackRef:React.RefObject<AgoraRTCType.ILocalVideoTrack | null>;
+};
+
+const StreamingButtonList = ({ videoTrackRef }: Props) => {
   const uid = useUID();
-  const { streamOn, streamOff, addTrackShare, stopTrackShare, volumeControl } = useStudioManager(uid);
+  const { streamOn, streamOff, addTrackShare, stopTrackShare, volumeControl, screenTrackRef } = useStudioManager(uid);
   const { audioState, controlAudio, audioVolume } = volumeControl;
   const { data, isLoading } = useUserStreaming(uid);
   const [loadingStatus, setLoadingStatus] = useState({
@@ -36,6 +41,8 @@ const StreamingButtonList = () => {
       />
     );
   }
+
+  videoTrackRef.current = screenTrackRef.current;
 
   return (
     <div className="flex flex-col gap-2 items-center">

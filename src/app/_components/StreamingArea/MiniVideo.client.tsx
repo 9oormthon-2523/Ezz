@@ -1,21 +1,50 @@
 'use client';
 
-import useLive from '@/app/_hooks/live/useLive';
-import { useUID } from '@/app/_store/context/useUid';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type * as AgoraRTCType from 'agora-rtc-sdk-ng';
 
 interface Props {
   is_active: boolean;
-}
+  videoTrackRef:React.RefObject<AgoraRTCType.ILocalVideoTrack | null>;
+};
 
-const MiniVideo = ({ is_active }: Props) => {
+// 미디어 트랙이 있으면 이를 할당한 videoElRef 반환
+const useVideoRef = ({ is_active, videoTrackRef }: Props) => {
+  const videoElRef = useRef<HTMLVideoElement>(null);
+  const limit = useRef<boolean>(false);
+  const SEC = 2 * 1000;
+
+  // 2초 단위로 미디어 스트림 확인
+  useEffect(() => {
+    if (!is_active && videoElRef.current) {
+      videoElRef.current.srcObject = null; // 비디오 src 초기화
+      return;
+    }
+
+    const interval = setInterval(() => {
+      if (!videoTrackRef.current || !videoElRef.current) {
+        return limit.current = false;
+      };
+
+      // 미디어 스트림이 존재하면 videoElRef에 src할당
+      
+      videoTrackRef.current.play(videoElRef.current);
+      limit.current = true;
+      
+    }, SEC);
+
+    return () => clearInterval(interval);
+  },[is_active, videoTrackRef, videoElRef, SEC]);
+
+  return {
+    videoElRef,
+  }
+};
+
+
+const MiniVideo = ({ is_active, videoTrackRef }: Props) => {
   const [isHidden, setIsHidden] = useState(false);
-
-  const uid = useUID();
-  const { videoElRef } = useLive({
-    host_uid: uid,
-    streaming_is_active: is_active,
-  });
+  const { videoElRef } = useVideoRef({ is_active, videoTrackRef });
 
   return (
     <>
@@ -31,6 +60,7 @@ const MiniVideo = ({ is_active }: Props) => {
         >
           X
         </button>
+        
         <video muted ref={videoElRef} className="w-[90%] h-[90%] bg-black"></video>
       </div>
 
