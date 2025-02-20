@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { StreamCardType } from '@/app/_types/streamcard/streamcard.type';
 
 const StreamCard = (card: StreamCardType) => {
-  const { title, nickname, audience_cnt, uid, thumbnail, is_active, tags } = card;
+  const { title, nickname, audience_cnt, uid, thumbnail, is_active, tags, category } = card;
   const router = useRouter();
   const defaultImage = '/channelPage/blank_profile.svg';
   const defaultThumbnail = '/mainPage/thumbnail.webp';

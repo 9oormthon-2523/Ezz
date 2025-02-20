@@ -5,7 +5,7 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env
 export const fetchStreamData = async (categorySlug?: string | string[] | undefined) => {
   let query = supabase
     .from('streaming_rooms')
-    .select('uid, title, start_time, is_active, audience_cnt, nickname, thumbnail, tags');
+    .select('uid, title, start_time, is_active, audience_cnt, nickname, thumbnail, tags, category');
 
   // 카테고리 페이지 일 경우 카테고리 별 필터링
   if (categorySlug) {
