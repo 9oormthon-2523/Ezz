@@ -3,11 +3,7 @@
 // components
 import Header from '../../_components/Header/Header.server';
 import NavBar from './_components/NavBar/NavBar.client';
-import StreamList from '@/app/_components/StreamList/StreamList.server';
-import SkeletonStreamList from '@/app/_components/StreamList/skeletonUI/SkeletonStreamList';
 import StreamComponent from '@/app/_components/StreamList/StreamComponent';
-// hooks
-import { useFetchStreamData } from '@/app/_hooks/streamList/useFetchStreamData';
 
 export default function Home() {
   return (
