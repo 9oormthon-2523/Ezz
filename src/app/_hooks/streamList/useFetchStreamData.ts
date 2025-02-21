@@ -18,16 +18,19 @@ export const useFetchStreamData = (categorySlug?: string | string[] | undefined)
   useEffect(() => {
     const subscription = supabase
       .channel('streaming_rooms')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'streaming_rooms' }, // ✅ 모든 이벤트 감지
-        async (payload) => {
-          console.log('🔄 실시간 업데이트 감지:', payload);
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'streaming_rooms' }, async (payload) => {
+        const updatedStream = await fetchStreamData(categorySlug);
 
-          const updatedData = await fetchStreamData(categorySlug);
-          setRealTimeData(updatedData);
-        },
-      )
+        setRealTimeData((prevData) => {
+          const updatedMap = new Map(prevData.map((stream) => [stream.uid, stream]));
+
+          updatedStream.forEach((stream) => {
+            updatedMap.set(stream.uid, stream);
+          });
+
+          return Array.from(updatedMap.values());
+        });
+      })
       .subscribe();
 
     return () => {
